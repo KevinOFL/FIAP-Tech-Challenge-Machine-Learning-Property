@@ -13,7 +13,8 @@ dependencies = [
     "psycopg2-binary (>=2.9.10,<3.0.0)",
     "selenium (>=4.35.0,<5.0.0)",
     "webdriver-manager (>=4.0.2,<5.0.0)",
-    "dotenv (>=0.9.9,<0.10.0)"
+    "dotenv (>=0.9.9,<0.10.0)",
+    "selenium-stealth (>=1.0.6,<2.0.0)"
 ]
 
 
