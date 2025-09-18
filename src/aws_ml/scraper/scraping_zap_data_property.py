@@ -80,7 +80,6 @@ stealth(driver,
 
 # Criação de um driver de espera
 wait = WebDriverWait(driver, 10)
-wait = WebDriverWait(driver, 5)
 
 # URLs utilizadas na raspagem
 url_base = "https://www.zapimoveis.com.br/venda/"
