@@ -6,7 +6,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
-from dotenv import load_dotenv
 from time import sleep
 from random import uniform
 from urllib.parse import urljoin
@@ -16,9 +15,6 @@ from pydantic import ValidationError
 
 import logging
 from typing import Literal
-
-# Carregando as variaveis de ambiente
-load_dotenv()
 
 # Configura do logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
