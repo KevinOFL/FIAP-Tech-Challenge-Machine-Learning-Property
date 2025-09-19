@@ -15,7 +15,8 @@ dependencies = [
     "webdriver-manager (>=4.0.2,<5.0.0)",
     "dotenv (>=0.9.9,<0.10.0)",
     "selenium-stealth (>=1.0.6,<2.0.0)",
-    "sqlalchemy (>=2.0.43,<3.0.0)"
+    "sqlalchemy (>=2.0.43,<3.0.0)",
+    "fastapi[all] (>=0.116.2,<0.117.0)"
 ]
 
 
