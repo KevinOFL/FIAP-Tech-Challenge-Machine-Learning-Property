@@ -16,8 +16,15 @@ from pydantic import ValidationError
 import logging
 from typing import Literal
 
-# Configura do logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+# Configura do logger
+logging.basicConfig(
+    level=logging.INFO, # Nível mínimo para exibir
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+)
+
+# Crie uma instância do logger para este módulo
+logger = logging.getLogger(__name__)
 
 # --- Configuração das Opções do Navegador Chrome ---
 
@@ -107,7 +114,7 @@ def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "
         list: Uma lista de dicionários, onde cada dicionário contém os dados de um imóvel,
               validados e prontos para serem salvos em JSON.
     """
-    logging.info(f"Iniciando o processo de scraping da Zap Imoveis em {tipo}.")
+    logger.info(f"Iniciando o processo de scraping da Zap Imoveis em {tipo}.")
     
     
     ad_links = [] # -> Lista auxiliar para verificação interna de volume
@@ -116,7 +123,7 @@ def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "
     full_url = urljoin(url_base, urls_alter[tipo]) # -> URL que efetua a junção da URL main mais a URL determinada pelo tipo de imovel
     driver.get(full_url) # -> Acessando a URL 
     
-    logging.info(f"Página acessada: {driver.title}")
+    logger.info(f"Página acessada: {driver.title}")
         
     number_page = 1 
     sleep(3)
@@ -128,11 +135,11 @@ def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "
             wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, ad_selector))) # -> Arguarde até os anuncios aparecem na página
 
             property_listing = driver.find_elements(By.CSS_SELECTOR, ad_selector) # -> Salvamos cada anuncio (elementos) em uma variavel que se torna uma lista
-            logging.info(f"Coletando links da página: {number_page}.")
+            logger.info(f"Coletando links da página: {number_page}.")
             
             # Verificação para ver se ultrapassamos o limite de amostras solicitadas ou já atingimos
             if len(ad_links) >= amostras_limit:
-                logging.info(f"Limite de amostras atingido ou ultrapassado (limite={amostras_limit}).")
+                logger.info(f"Limite de amostras atingido ou ultrapassado (limite={amostras_limit}).")
                 break
             
             # Pausas longas para fingir comportamento humano quando atingimos uma quantidade de amostras
@@ -171,16 +178,16 @@ def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "
 
             except TimeoutException:
                 # Se o botão não for encontrado após 15 segundos, significa que chegamos ao fim
-                logging.info("Botão 'Próxima página' não encontrado. Fim do scraping.")
+                logger.info("Botão 'Próxima página' não encontrado. Fim do scraping.")
                 break # Sai do loop while
         
     except Exception as e:
-        logging.error(f"Ocorreu um erro inesperado durante o scraping: {e}")
+        logger.error(f"Ocorreu um erro inesperado durante o scraping: {e}")
         
     finally:
         # Por fim retornamos uma lista de dicionarios com os dados dos imoveis validados
-        logging.info(f"--- COLETA DE DADOS CONCLUÍDA ---")
-        logging.info(f"Total de imóveis com os dados coletados: {len(ad_links)}")
+        logger.info(f"--- COLETA DE DADOS CONCLUÍDA ---")
+        logger.info(f"Total de imóveis com os dados coletados: {len(ad_links)}")
         driver.quit()
         return list_data_propertys_json
         
@@ -241,7 +248,7 @@ def scraping_data_ad_and_endpoints(ad_features:list, URLs:list):
                     if "IPTU" in prices and "Cond." not in prices:
                         raw_data["iptu"] = prices.strip()
                 except Exception as e:
-                        logging.error(f"Ocorreu um erro inesperado durante a coleta dos dados de IPTU sem condominio: {e}")
+                        logger.error(f"Ocorreu um erro inesperado durante a coleta dos dados de IPTU sem condominio: {e}")
                 
                 # Caso passe da ultima verificação, verificamos se ele tem os dados de condominio e IPTU, pois geralmente o condominio vem antes do IPTU no texto 
                 try:
@@ -251,10 +258,10 @@ def scraping_data_ad_and_endpoints(ad_features:list, URLs:list):
                         if len(price_parts) > 1 and "IPTU" in price_parts[1]:
                             raw_data["iptu"] = price_parts[1].strip()
                 except Exception as e:
-                    logging.error(f"Ocorreu um erro inesperado durante a coleta dos dados do imovel com IPTU e condominio: {e}")
+                    logger.error(f"Ocorreu um erro inesperado durante a coleta dos dados do imovel com IPTU e condominio: {e}")
                         
             except Exception as e:
-                logging.error(f"Ocorreu um erro inesperado durante a coleta dos dados de IPTU e condominio: {e}")
+                logger.error(f"Ocorreu um erro inesperado durante a coleta dos dados de IPTU e condominio: {e}")
             
             # Pegando os dados de área do imovel
             try:
@@ -263,7 +270,7 @@ def scraping_data_ad_and_endpoints(ad_features:list, URLs:list):
                 area_m2 = h3_area.text
                 raw_data["area_m2"] = area_m2.strip()
             except Exception as e:
-                logging.error(f"Ocorreu um erro inesperado durante a coleta dos dados de área do imovel: {e}")
+                logger.error(f"Ocorreu um erro inesperado durante a coleta dos dados de área do imovel: {e}")
             
             # Pegando os dados de quantos comodos o imovel possui       
             try:
@@ -273,7 +280,7 @@ def scraping_data_ad_and_endpoints(ad_features:list, URLs:list):
                 raw_data["rooms"] = room.strip()
             except Exception as e:
                 raw_data["rooms"] = 0
-                logging.error(f"Ocorreu um erro inesperado durante a coleta dos dados dos comodos do imovel: {e}")
+                logger.error(f"Ocorreu um erro inesperado durante a coleta dos dados dos comodos do imovel: {e}")
             
             # Pegando os dados de quantos banheiros o imovel possui            
             try:
@@ -288,7 +295,7 @@ def scraping_data_ad_and_endpoints(ad_features:list, URLs:list):
                     raw_data["bathrooms"] = bathroom.strip()
             except Exception as e:
                 raw_data["bathrooms"] = 0
-                logging.error(f"Ocorreu um erro inesperado durante a coleta dos dados de banheiros do imovel: {e}")
+                logger.error(f"Ocorreu um erro inesperado durante a coleta dos dados de banheiros do imovel: {e}")
             
             # Pegando os dados de quantas vagas de estacionamento o imovel possui           
             try:
@@ -298,7 +305,7 @@ def scraping_data_ad_and_endpoints(ad_features:list, URLs:list):
                 raw_data["vacancies"] = parking.strip()
             except Exception as e:
                 raw_data["vacancies"] = 0
-                logging.error(f"Ocorreu um erro inesperado durante a coleta dos dados de vagas de garagem do imovel: {e}")
+                logger.error(f"Ocorreu um erro inesperado durante a coleta dos dados de vagas de garagem do imovel: {e}")
             
             #  Pegando os dados de localização (estado, bairro) do imovel    
             try:
@@ -310,12 +317,12 @@ def scraping_data_ad_and_endpoints(ad_features:list, URLs:list):
                 raw_data["state"] = locations[1].strip()
                 raw_data["neighborhood"] = locations[0].strip()
             except Exception as e:
-                logging.error(f"Ocorreu um erro inesperado durante a coleta dos dados de estado e bairro onde o imovel se localiza: {e}")
+                logger.error(f"Ocorreu um erro inesperado durante a coleta dos dados de estado e bairro onde o imovel se localiza: {e}")
                 
             list_data_propertys.append(raw_data)
                     
         except Exception as e:
-            logging.error(f"Ocorreu um erro inesperado durante a coleta dos dados da URL atual: {e}")
+            logger.error(f"Ocorreu um erro inesperado durante a coleta dos dados da URL atual: {e}")
     
     # Retornamos uma lista de dicionarios
     return list_data_propertys
@@ -344,7 +351,7 @@ def vefiry_datas_for_send_json(datas_propertys:list):
             
             property_validate.append(valid_property) # -> Adicinando a lista
         except ValidationError:
-            logging.error(f"Arquivo falhou na validação: \n{valid_property}")
+            logger.error(f"Arquivo falhou na validação: \n{valid_property}")
     
     property_list_validate = [property_for_json.model_dump() for property_for_json in property_validate]
     # Retornamos umas lista de dicionarios
