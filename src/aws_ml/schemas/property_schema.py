@@ -15,7 +15,6 @@ class PropertySchema(BaseModel):
     vacancies: int
     state: str
     neighborhood: str
-    collection_date: date = Field(default_factory=date.today)
 
     # Este validador será aplicado aos campos listados ANTES de qualquer outra validação
     @field_validator('price', 'price_condominium', 'iptu', 'area_m2', 'rooms', 'bathrooms', 'vacancies', mode='before')
