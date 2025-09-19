@@ -10,7 +10,7 @@ from time import sleep
 from random import uniform
 from urllib.parse import urljoin
 from selenium_stealth import stealth
-from src.aws_ml.models.property_model import PropertySchema
+from src.aws_ml.schemas.property_model import PropertySchema
 from pydantic import ValidationError
 
 import logging
