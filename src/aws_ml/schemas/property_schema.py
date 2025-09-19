@@ -13,8 +13,8 @@ class PropertySchema(BaseModel):
     rooms: int
     bathrooms: int
     vacancies: int
-    state: Optional[str] = None
-    neighborhood: Optional[str] = None
+    state: str
+    neighborhood: str
     collection_date: date = Field(default_factory=date.today)
 
     # Este validador será aplicado aos campos listados ANTES de qualquer outra validação
