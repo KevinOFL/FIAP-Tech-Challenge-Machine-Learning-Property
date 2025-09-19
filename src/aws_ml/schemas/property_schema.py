@@ -12,7 +12,7 @@ class PropertySchema(BaseModel):
     rooms: int
     bathrooms: int
     vacancies: int
-    state: str
+    city: str
     neighborhood: str
 
     # Este validador será aplicado aos campos listados ANTES de qualquer outra validação

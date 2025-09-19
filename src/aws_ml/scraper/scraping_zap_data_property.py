@@ -26,75 +26,6 @@ logging.basicConfig(
 # Crie uma instância do logger para este módulo
 logger = logging.getLogger(__name__)
 
-# --- Configuração das Opções do Navegador Chrome ---
-
-# Cria um objeto para armazenar as configurações do navegador Chrome.
-chrome_options = Options()
-
-# Configura o Chrome para rodar em modo "headless", ou seja, sem abrir uma janela visual.
-chrome_options.add_argument("--headless")
-
-# Define um tamanho de janela fixo (Full HD), essencial para que o layout da página seja renderizado corretamente em modo headless.
-chrome_options.add_argument("--window-size=1920,1080")
-
-# Desativa a aceleração de hardware (GPU), uma medida que evita problemas de compatibilidade em alguns ambientes, como Windows e Docker.
-chrome_options.add_argument("--disable-gpu")
-
-# Desabilita o modo "sandbox" do Chrome, necessário para executar o navegador em certos ambientes de servidor ou containers (como Docker).
-chrome_options.add_argument("--no-sandbox")
-
-# Evita problemas com o uso de memória compartilhada (/dev/shm) em ambientes com recursos limitados, como containers.
-chrome_options.add_argument("--disable-dev-shm-usage")
-
-# Inicia o navegador maximizado (funciona apenas quando não está em modo headless).
-chrome_options.add_argument("--start-maximized")
-
-# Remove a barra de aviso "O Chrome está sendo controlado por software de teste automatizado", uma técnica para parecer menos com um robô.
-chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
-
-# Desativa o uso de extensões de automação, outra medida para dificultar a detecção do scraper.
-chrome_options.add_experimental_option('useAutomationExtension', False)
-
-# Define um User-Agent de um navegador comum para que o scraper se identifique como um usuário real, e não um script padrão.
-user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
-chrome_options.add_argument(f"user-agent={user_agent}")
-
-
-# --- Inicialização do WebDriver ---
-
-# Inicializa o WebDriver do Chrome, aplicando todas as configurações definidas acima.
-# O ChromeDriverManager cuida de baixar e gerenciar a versão correta do driver automaticamente.
-driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
-
-
-# --- Configuração do Selenium Stealth ---
-
-# Aplica as configurações da biblioteca 'selenium-stealth' ao driver.
-# Esta função modifica várias propriedades do navegador em tempo de execução para torná-lo praticamente indistinguível de um navegador usado por um humano.
-stealth(driver,
-        # Define o idioma do navegador como português do Brasil.
-        languages=["pt-BR", "pt"],
-        # Informa que o fornecedor do navegador é a Google.
-        vendor="Google Inc.",
-        # Simula que o sistema operacional é Windows.
-        platform="Win32",
-        # Mascara as informações de renderização gráfica (WebGL) para parecerem mais comuns.
-        webgl_vendor="Intel Inc.",
-        renderer="Intel Iris OpenGL Engine",
-        # Corrige um pequeno detalhe de renderização que pode denunciar a automação.
-        fix_hairline=True,
-        )
-
-# Criação de um driver de espera
-wait = WebDriverWait(driver, 10)
-
-# URLs utilizadas na raspagem
-url_base = "https://www.zapimoveis.com.br/venda/"
-urls_alter = {"apartamento":"apartamentos/?transacao=venda&tipos=apartamento_residencial&ordem=MOST_RELEVANT", "casa":"casas/?transacao=venda&tipos=casa_residencial&ordem=MOST_RELEVANT",
-              "quitinete":"quitinetes/?transacao=venda&tipos=kitnet_residencial&ordem=MOST_RELEVANT","sobrado":"sobrados/?transacao=venda&tipos=sobrado_residencial&ordem=MOST_RELEVANT",
-              "terreno":"terrenos-lotes-condominios/?transacao=venda&tipos=lote-terreno_residencial&ordem=MOST_RELEVANT", "sitio":"fazendas-sitios-chacaras/?transacao=venda&tipos=granja_residencial&ordem=MOST_RELEVANT",
-}
-
 
 # Função de main de raspagem
 def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "sobrado", "terreno", "sitio"], amostras_limit: int):
@@ -114,20 +45,90 @@ def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "
         list: Uma lista de dicionários, onde cada dicionário contém os dados de um imóvel,
               validados e prontos para serem salvos em JSON.
     """
-    logger.info(f"Iniciando o processo de scraping da Zap Imoveis em {tipo}.")
-    
-    
-    ad_links = [] # -> Lista auxiliar para verificação interna de volume
-    list_data_propertys_json = [] # -> Lista principal, a cada interação e devolvida para uma função
+    # --- Configuração das Opções do Navegador Chrome ---
 
-    full_url = urljoin(url_base, urls_alter[tipo]) # -> URL que efetua a junção da URL main mais a URL determinada pelo tipo de imovel
-    driver.get(full_url) # -> Acessando a URL 
-    
-    logger.info(f"Página acessada: {driver.title}")
-        
-    number_page = 1 
-    sleep(3)
+    # Cria um objeto para armazenar as configurações do navegador Chrome.
+    chrome_options = Options()
+
+    # Configura o Chrome para rodar em modo "headless", ou seja, sem abrir uma janela visual.
+    chrome_options.add_argument("--headless")
+
+    # Define um tamanho de janela fixo (Full HD), essencial para que o layout da página seja renderizado corretamente em modo headless.
+    chrome_options.add_argument("--window-size=1920,1080")
+
+    # Desativa a aceleração de hardware (GPU), uma medida que evita problemas de compatibilidade em alguns ambientes, como Windows e Docker.
+    chrome_options.add_argument("--disable-gpu")
+
+    # Desabilita o modo "sandbox" do Chrome, necessário para executar o navegador em certos ambientes de servidor ou containers (como Docker).
+    chrome_options.add_argument("--no-sandbox")
+
+    # Evita problemas com o uso de memória compartilhada (/dev/shm) em ambientes com recursos limitados, como containers.
+    chrome_options.add_argument("--disable-dev-shm-usage")
+
+    # Inicia o navegador maximizado (funciona apenas quando não está em modo headless).
+    chrome_options.add_argument("--start-maximized")
+
+    # Remove a barra de aviso "O Chrome está sendo controlado por software de teste automatizado", uma técnica para parecer menos com um robô.
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+
+    # Desativa o uso de extensões de automação, outra medida para dificultar a detecção do scraper.
+    chrome_options.add_experimental_option('useAutomationExtension', False)
+
+    # Define um User-Agent de um navegador comum para que o scraper se identifique como um usuário real, e não um script padrão.
+    user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+    chrome_options.add_argument(f"user-agent={user_agent}")
+
+
+    # --- Inicialização do WebDriver ---
+
+    # Inicializa o WebDriver do Chrome, aplicando todas as configurações definidas acima.
+    # O ChromeDriverManager cuida de baixar e gerenciar a versão correta do driver automaticamente.
+    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
+
+
+    # --- Configuração do Selenium Stealth ---
+
+    # Aplica as configurações da biblioteca 'selenium-stealth' ao driver.
+    # Esta função modifica várias propriedades do navegador em tempo de execução para torná-lo praticamente indistinguível de um navegador usado por um humano.
+    stealth(driver,
+            # Define o idioma do navegador como português do Brasil.
+            languages=["pt-BR", "pt"],
+            # Informa que o fornecedor do navegador é a Google.
+            vendor="Google Inc.",
+            # Simula que o sistema operacional é Windows.
+            platform="Win32",
+            # Mascara as informações de renderização gráfica (WebGL) para parecerem mais comuns.
+            webgl_vendor="Intel Inc.",
+            renderer="Intel Iris OpenGL Engine",
+            # Corrige um pequeno detalhe de renderização que pode denunciar a automação.
+            fix_hairline=True,
+            )
+
+    # Criação de um driver de espera
+    wait = WebDriverWait(driver, 10)
+
     try:
+    # URLs utilizadas na raspagem
+        url_base = "https://www.zapimoveis.com.br/venda/"
+        urls_alter = {"apartamento":"apartamentos/?transacao=venda&tipos=apartamento_residencial&ordem=MOST_RELEVANT", "casa":"casas/?transacao=venda&tipos=casa_residencial&ordem=MOST_RELEVANT",
+                    "quitinete":"quitinetes/?transacao=venda&tipos=kitnet_residencial&ordem=MOST_RELEVANT","sobrado":"sobrados/?transacao=venda&tipos=sobrado_residencial&ordem=MOST_RELEVANT",
+                    "terreno":"terrenos-lotes-condominios/?transacao=venda&tipos=lote-terreno_residencial&ordem=MOST_RELEVANT", "sitio":"fazendas-sitios-chacaras/?transacao=venda&tipos=granja_residencial&ordem=MOST_RELEVANT",
+        }
+        
+        logger.info(f"Iniciando o processo de scraping da Zap Imoveis em {tipo}.")
+        
+        
+        ad_links = [] # -> Lista auxiliar para verificação interna de volume
+        list_data_propertys_json = [] # -> Lista principal, a cada interação e devolvida para uma função
+
+        full_url = urljoin(url_base, urls_alter[tipo]) # -> URL que efetua a junção da URL main mais a URL determinada pelo tipo de imovel
+        driver.get(full_url) # -> Acessando a URL 
+        
+        logger.info(f"Página acessada: {driver.title}")
+            
+        number_page = 1 
+        sleep(3)
+    
         while True:
             ad_links_current_page = [] # -> Lista que recebe os links dos anuncios da página atual
             ad_selector = 'li[data-cy="rp-property-cd"] a' # -> Variavel que contem o valor dos elementos de anuncios da página
@@ -158,7 +159,7 @@ def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "
             property_json = vefiry_datas_for_send_json(datas_propertys)
             
             # Adicionamos os dados retornados a uma lista
-            list_data_propertys_json.append(property_json)
+            list_data_propertys_json.extend(property_json)
             
             # Verificação do botão next-page para irmos para a próxima página caso ainda não tenhamos suprido a necessidade de amostras
             try:
@@ -186,10 +187,11 @@ def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "
         
     finally:
         # Por fim retornamos uma lista de dicionarios com os dados dos imoveis validados
-        logger.info(f"--- COLETA DE DADOS CONCLUÍDA ---")
-        logger.info(f"Total de imóveis com os dados coletados: {len(ad_links)}")
+        logger.info("Fechando o navegador.")
         driver.quit()
-        return list_data_propertys_json
+        
+    logger.info(f"--- COLETA DE DADOS CONCLUÍDA ---")
+    return list_data_propertys_json
         
     
 
@@ -314,7 +316,7 @@ def scraping_data_ad_and_endpoints(ad_features:list, URLs:list):
                 location_parts = location.split("\n")
                 location_index = location_parts[-1]
                 locations = location_index.split(",")
-                raw_data["state"] = locations[1].strip()
+                raw_data["city"] = locations[1].strip()
                 raw_data["neighborhood"] = locations[0].strip()
             except Exception as e:
                 logger.error(f"Ocorreu um erro inesperado durante a coleta dos dados de estado e bairro onde o imovel se localiza: {e}")
@@ -351,7 +353,7 @@ def vefiry_datas_for_send_json(datas_propertys:list):
             
             property_validate.append(valid_property) # -> Adicinando a lista
         except ValidationError:
-            logger.error(f"Arquivo falhou na validação: \n{valid_property}")
+            logger.error(f"Dicionário falhou na validação Pydantic: \n{property}")
     
     property_list_validate = [property_for_json.model_dump() for property_for_json in property_validate]
     # Retornamos umas lista de dicionarios
