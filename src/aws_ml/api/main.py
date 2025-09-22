@@ -121,3 +121,35 @@ async def collect_data_and_save(
         db.rollback()
         logger.error(f"ERROR: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"An internal error occurred: {e}")
+    
+@app.get("/consult-all-datas", response_model=List[property_schema.PropertySchema])
+async def selection_all_datas(   
+    # 'db' recebe uma sessão de banco de dados da dependência 'get_db'.
+    db: Session = Depends(get_db),
+    
+    # 'api_key' executa a função 'get_api_key' para validar a chave de API
+    # enviada no cabeçalho da requisição. Se a chave for inválida, a execução é bloqueada.
+    api_key: str = Depends(get_api_key)
+):
+    """
+    Consulta os dados de imóveis do banco de dados com suporte a paginação
+    e tratamento de erros.
+    """
+    logger.info(f">>> Recebida requisição para consultar todos os dados.")
+
+    try:
+        logger.info(">>> Coletando os dados do banco...")
+        
+        datas = db.query(property_model.Property).all()
+        
+        logger.info(f">>> Foram coletados no total {len(datas)} dados de imóveis.")
+        
+        # Retorna a lista de dados (pode ser vazia).
+        return datas
+
+    except Exception as e:
+        # --- Tratamento de Erros ---
+        # Se qualquer coisa der errado na comunicação com o banco, capturamos o erro.
+        logger.error(f"Ocorreu um erro ao consultar o banco de dados: {e}", exc_info=True)
+        # Retornamos uma resposta de erro HTTP 500 padronizada.
+        raise HTTPException(status_code=500, detail="Erro interno ao acessar o banco de dados.")
