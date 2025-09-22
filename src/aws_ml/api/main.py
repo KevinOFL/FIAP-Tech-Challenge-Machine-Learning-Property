@@ -47,7 +47,7 @@ async def collect_data_and_save(
     tipo: Literal["apartamento", "casa", "quitinete", "sobrado", "terreno", "sitio"],
     
     # Determina o limite minimo (0) e o limite maximo (1000) de amostras a serem coletadas pelo scraping
-    amostras_limit: int = Query(gt=0, le=1000),
+    amostras_limit: int = Query(gt=0, le=1000, description="Limite máximo de amostras de imoveis a coletar."),
     
     # 'db' recebe uma sessão de banco de dados da dependência 'get_db'.
     db: Session = Depends(get_db),
