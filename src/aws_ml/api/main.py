@@ -149,6 +149,6 @@ async def selection_all_datas(
     except Exception as e:
         # --- Tratamento de Erros ---
         # Se qualquer coisa der errado na comunicação com o banco, capturamos o erro.
-        logger.error(f"Ocorreu um erro ao consultar o banco de dados: {e}", exc_info=True)
+        logger.error(f"An error occurred while querying the database: {e}", exc_info=True)
         # Retornamos uma resposta de erro HTTP 500 padronizada.
-        raise HTTPException(status_code=500, detail="Erro interno ao acessar o banco de dados.")
+        raise HTTPException(status_code=500, detail="Internal error accessing the database.")
