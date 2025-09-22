@@ -132,8 +132,7 @@ async def selection_all_datas(
     api_key: str = Depends(get_api_key)
 ):
     """
-    Consulta os dados de imóveis do banco de dados com suporte a paginação
-    e tratamento de erros.
+    Consulta os dados de imóveis do banco de dados com suporte a tratamento de erros.
     """
     logger.info(f">>> Recebida requisição para consultar todos os dados.")
 
