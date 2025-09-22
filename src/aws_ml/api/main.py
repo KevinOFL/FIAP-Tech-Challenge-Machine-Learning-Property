@@ -44,7 +44,7 @@ def get_db():
 @app.get("/collect-data", response_model=List[property_schema.PropertySchema])
 async def collect_data_and_save(
     # Efetua uma solicitação forçada de um tipo de imovel que deseja buscar
-    tipo: Literal["apartamento", "casa", "quitinete", "sobrado", "terreno", "sitio"],
+    tipo: Literal["apartamento", "casa", "quitinete", "sobrado"],
     
     # Determina o limite minimo (0) e o limite maximo (1000) de amostras a serem coletadas pelo scraping
     amostras_limit: int = Query(gt=0, le=1000, description="Limite máximo de amostras de imoveis a coletar."),

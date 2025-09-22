@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 # Função de main de raspagem
-def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "sobrado", "terreno", "sitio"], amostras_limit: int):
+def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "sobrado"], amostras_limit: int):
     """
     Função principal que orquestra o processo de web scraping no site Zap Imóveis.
 
@@ -38,7 +38,7 @@ def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "
 
     Args:
         tipo (Literal): O tipo de imóvel a ser buscado. 
-                        Valores aceitos: "apartamento", "casa", "quitinete", "sobrado", "terreno", "sitio".
+                        Valores aceitos: "apartamento", "casa", "quitinete", "sobrado".
         amostras_limit (int): O número máximo de anúncios a serem coletados antes de parar o processo.
 
     Returns:
@@ -111,8 +111,7 @@ def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "
     # URLs utilizadas na raspagem
         url_base = "https://www.zapimoveis.com.br/venda/"
         urls_alter = {"apartamento":"apartamentos/?transacao=venda&tipos=apartamento_residencial&ordem=MOST_RELEVANT", "casa":"casas/?transacao=venda&tipos=casa_residencial&ordem=MOST_RELEVANT",
-                    "quitinete":"quitinetes/?transacao=venda&tipos=kitnet_residencial&ordem=MOST_RELEVANT","sobrado":"sobrados/?transacao=venda&tipos=sobrado_residencial&ordem=MOST_RELEVANT",
-                    "terreno":"terrenos-lotes-condominios/?transacao=venda&tipos=lote-terreno_residencial&ordem=MOST_RELEVANT", "sitio":"fazendas-sitios-chacaras/?transacao=venda&tipos=granja_residencial&ordem=MOST_RELEVANT",
+                    "quitinete":"quitinetes/?transacao=venda&tipos=kitnet_residencial&ordem=MOST_RELEVANT","sobrado":"sobrados/?transacao=venda&tipos=sobrado_residencial&ordem=MOST_RELEVANT"
         }
         
         logger.info(f"Iniciando o processo de scraping da Zap Imoveis em {tipo}.")
@@ -144,7 +143,7 @@ def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "
                 break
             
             # Pausas longas para fingir comportamento humano quando atingimos uma quantidade de amostras
-            if len(ad_links) == 600 or len(ad_links) == 1200 or len(ad_links) == 1800:
+            if len(ad_links) == 250 or len(ad_links) == 500 or len(ad_links) == 750:
                 sleep(uniform(10, 15))
                 
             # Pegamos o endpoint de cada anuncio, pois e neles que contém o ID do imovel, e salvamos em 2 listas
