@@ -1,5 +1,5 @@
 [project]
-name = "aws-ml"
+name = "app_propieters_ml"
 version = "0.1.0"
 description = ""
 authors = [
