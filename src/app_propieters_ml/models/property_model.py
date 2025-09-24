@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Date, Time, Numeric, DateTime
 from sqlalchemy.sql import func
-from src.aws_ml.core.database import Base
+from src.app_propieters_ml.core.database import Base
 
 class Property(Base):
     __tablename__ = "properties"

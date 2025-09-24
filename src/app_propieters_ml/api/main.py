@@ -5,11 +5,11 @@ from sqlalchemy.dialects.postgresql import insert
 from typing import List, Literal
 from functools import partial
 
-from src.app_properties_ml.core.database import SessionLocal, engine
-from src.app_properties_ml.scraper.scraping_zap_data_property import main_scraping_ad_and_url
-from src.app_properties_ml.models import property_model
-from src.app_properties_ml.api.security import get_api_key
-from src.app_properties_ml.schemas import property_schema
+from src.app_propieters_ml.core.database import SessionLocal, engine
+from src.app_propieters_ml.scraper.scraping_zap_data_property import main_scraping_ad_and_url
+from src.app_propieters_ml.models import property_model
+from src.app_propieters_ml.api.security import get_api_key
+from src.app_propieters_ml.schemas import property_schema
 
 import logging
 
