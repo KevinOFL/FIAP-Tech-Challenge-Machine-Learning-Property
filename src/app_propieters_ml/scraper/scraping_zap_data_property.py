@@ -143,7 +143,7 @@ def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "
                 break
             
             # Pausas longas para fingir comportamento humano quando atingimos uma quantidade de amostras
-            if len(ad_links) == 250 or len(ad_links) == 500 or len(ad_links) == 750:
+            if len(ad_links) == 250 or len(ad_links) == 500 or len(ad_links) == 750 or len(ad_links) == 1000 or len(ad_links) == 1500 or len(ad_links) == 1750:
                 sleep(uniform(10, 15))
                 
             # Pegamos o endpoint de cada anuncio, pois e neles que contém o ID do imovel, e salvamos em 2 listas
@@ -152,6 +152,8 @@ def main_scraping_ad_and_url(tipo: Literal["apartamento", "casa", "quitinete", "
                 if href:
                     ad_links.append(str(href))
                     ad_links_current_page.append(str(href))
+            
+            logger.info(f"Quantidade de dados coletados até o momento: {len(list_data_propertys_json)}")
             
             # Enviamos os dados de elementos e endpoints dos anuncios e recebemos os retorno e repassamos para a próxima função que efetua a verificação desses dados       
             datas_propertys = scraping_data_ad_and_endpoints(property_listing, ad_links_current_page)
