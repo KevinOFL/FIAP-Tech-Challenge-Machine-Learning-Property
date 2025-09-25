@@ -24,7 +24,6 @@ dependencies = [
     "matplotlib (>=3.10.6,<4.0.0)",
     "lightgbm (>=4.6.0,<5.0.0)",
     "xgboost (>=3.0.5,<4.0.0)",
-    "catboost (>=1.2.8,<2.0.0)",
 ]
 
 
