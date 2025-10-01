@@ -1,5 +1,8 @@
-from fastapi import FastAPI, Depends, HTTPException, Query
+from fastapi import FastAPI, Depends, HTTPException, Query, Request
 from fastapi.concurrency import run_in_threadpool
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert
 from typing import List, Literal
@@ -9,9 +12,11 @@ from src.app_propieters_ml.core.database import SessionLocal, engine
 from src.app_propieters_ml.scraper.scraping_zap_data_property import main_scraping_ad_and_url
 from src.app_propieters_ml.models import property_model
 from src.app_propieters_ml.api.security import get_api_key
-from src.app_propieters_ml.schemas import property_schema
+from src.app_propieters_ml.schemas import property_schema, prediction_model_schema
 
+import numpy as np
 import logging
+import joblib
 
 # Configurando o logging
 logging.basicConfig(
@@ -26,8 +31,15 @@ logger = logging.getLogger(__name__)
 # Criação das tabelas no banco de dados, baseado na models do sqlalchemy
 property_model.Base.metadata.create_all(bind=engine)
 
-# Criando uma instancia do FASTApi
-app = FastAPI()
+# Criando uma instancia do FASTApi e capturando o PATH do modelo treinado
+app = FastAPI(title="API e Web App de predição de valores de imóveis reais", version="1.0.0")
+model = joblib.load("./src/app_propieters_ml/ml/models_trained/pred_price_model.joblib")
+
+# Montando a pasta "static" para servir arquivos estáticos (CSS, JS)
+app.mount("/static", StaticFiles(directory="./src/app_propieters_ml/api/static/"), name="static")
+
+# Configurando o diretório de templates Jinja2
+templates = Jinja2Templates(directory="./src/app_propieters_ml/api/templates")
 
 # --- Dependência para obter a sessão do banco de dados ---
 def get_db():
@@ -36,7 +48,65 @@ def get_db():
         yield db
     finally:
         db.close()
-        
+
+# Lista de tipos de imoveis
+PROPERTY_TYPE_CATEGORIES = ["apartamento", "casa", "quitinete", "sobrados"]
+
+# Página inicial onde está a aplicação completa
+@app.get("/", response_class=HTMLResponse)
+def read_root(request: Request):
+    # O método TemplateResponse renderiza o template "index.html"
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "property_type": PROPERTY_TYPE_CATEGORIES
+    })
+
+# Endpoint de predição
+@app.post("/predict")
+def predict(data: prediction_model_schema.PredictionPriceSchema):
+    """
+    Recebe os dados de entrada, enviados via formulario no HTML e efetua a predição com o modelo carregado
+    e retorna o resultado da predição.
+    """
+    # Construimos as features amais que o modelo utiliza
+    rooms_safe = data.rooms if data.rooms > 0 else 1
+    
+    rooms_totality = data.rooms + data.bathrooms
+    area_per_room = data.area_m2 / rooms_safe
+    bathrooms_per_rooms = data.bathrooms / rooms_safe
+    
+    if data.property_type not in PROPERTY_TYPE_CATEGORIES:
+        # Se o tipo de imóvel não for um dos conhecidos, retorna um erro.
+        raise HTTPException(status_code=400, detail=f"Tipo de imóvel inválido. Use um de: {PROPERTY_TYPE_CATEGORIES}")
+
+    # Cria um vetor de zeros com o mesmo tamanho das nossas categorias
+    ohe_property_type = [0] * len(PROPERTY_TYPE_CATEGORIES)
+    # Encontra o índice da categoria recebida
+    category_index = PROPERTY_TYPE_CATEGORIES.index(data.property_type)
+    # Define o valor 1 na posição correta
+    ohe_property_type[category_index] = 1
+    
+    input_data = [
+        data.area_m2,
+        data.rooms,
+        data.bathrooms,
+        data.vacancies,
+        rooms_totality,
+        area_per_room,
+        bathrooms_per_rooms
+    ] + ohe_property_type
+    
+    # Transformamaos para uma dimensão 2D
+    input_data_final = np.array(input_data).reshape(1, -1)
+    
+    # Passamos os dados para o modelo prever
+    prediction_result = model.predict(input_data_final)
+    
+    # E retornamos o resultado
+    return {
+        "prediction": int(prediction_result[0]),
+    }
+
 # O decorator @app.get registra a função abaixo para responder a requisições HTTP GET
 # no caminho "/collect-data".
 # O 'response_model' garante que a resposta JSON seguirá o formato definido em
