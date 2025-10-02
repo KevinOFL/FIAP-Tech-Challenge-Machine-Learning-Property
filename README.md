@@ -1,6 +1,6 @@
 # 📘 FIAP Tech Challenge Machine Learning Property - Fase 3
 
-Aplicação baseada em Machine Learning, treinei um modelo de predição de valores de imóveis reais do Brasil.
+Aplicação baseada em Machine Learning com um problema de regressão, treinei um modelo de predição de valores de imóveis reais do Brasil.
 Raspagem dos dados foi feita do site [Zap Imóveis](https://www.zapimoveis.com.br/) e armazenados no banco de dados PostgresSQL.
 Aplicação foi levantada com [FastAPI](https://fastapi.tiangolo.com/).
 ---
@@ -40,7 +40,7 @@ Este repositório corresponde à entrega final da terceira fase do curso de pós
 * [Python 3.13+](https://www.python.org/downloads/)
 * [Poetry](https://python-poetry.org/docs/)
 
-### 📂 Instalação via Poetry e inicialização da infra via Terraform
+### 📂 Instalação via Poetry e inicialização do servidor Uvicorn
 
 ```bash
 git clone https://github.com/KevinOFL/FIAP-Tech-Challenge-Machine-Learning-Property.git
