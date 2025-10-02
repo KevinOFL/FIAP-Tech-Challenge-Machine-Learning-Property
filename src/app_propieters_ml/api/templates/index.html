@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predição de Preço de Imóveis Reais</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='./css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Teste seu Modelo de Predição de Imóveis</h1>
+        <p>Insira as características do imóvel para obter uma predição de valor.</p>
+
+        <form id="prediction-form">
+            <div class="form-group">
+                <label for="property_type">Tipo de Imóvel:</label>
+                <select id="property_type" name="property_type" required>
+                    {% for prop_type in property_type %}
+                    <option value="{{ prop_type }}">{{ prop_type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="area_m2">Área (m²):</label>
+                <input type="number" id="area_m2" name="area_m2" step="1" min="1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="rooms">Quartos:</label>
+                <input type="number" id="rooms" name="rooms" step="1" min="0" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="bathrooms">Banheiros:</label>
+                <input type="number" id="bathrooms" name="bathrooms" step="1" min="1" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="vacancies">Vagas de Garagem:</label>
+                <input type="number" id="vacancies" name="vacancies" step="1" min="0" value="0" required>
+            </div>
+
+            <button type="submit">Fazer Predição</button>
+        </form>
+
+        <h2>Resultado da Predição:</h2>
+        <pre id="result-display">O resultado aparecerá aqui...</pre>
+    </div>
+
+    <script src="{{ url_for('static', path='/js/script.js') }}"></script>
+</body>
+</html>
