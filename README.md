@@ -43,7 +43,7 @@ Este repositório corresponde à entrega final da terceira fase do curso de pós
 ### 📂 Instalação via Poetry e inicialização da infra via Terraform
 
 ```bash
-git clone https://github.com/camilapiva/embrapa-api.git
+git clone https://github.com/KevinOFL/FIAP-Tech-Challenge-Machine-Learning-Property.git
 poetry install
 uvicorn src.app_propieters_ml.api.main:app --reload
 ```
